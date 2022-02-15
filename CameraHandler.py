@@ -12,7 +12,7 @@ class CameraHandler:
 
     def initCams(self, CAM_PORTS):
         self.lcam = cv2.VideoCapture(CAM_PORTS[0])
-        self.rcam = cv2.VideoCapture(CAM_PORTS[2])
+        self.rcam = cv2.VideoCapture(CAM_PORTS[1])
         self.cv_file = cv2.FileStorage("improved_params2.xml", cv2.FILE_STORAGE_READ)
         self.Left_Stereo_Map1 = self.cv_file.getNode("Left_Stereo_Map_x").mat()
         self.Left_Stereo_Map2 = self.cv_file.getNode("Left_Stereo_Map_y").mat()

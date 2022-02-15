@@ -11,9 +11,9 @@ import argparse
 from models.config import config as config_args
 import cv2
 
+
 class DPNN:
     def __init__(self, CAM_DIST, DISP_CAL, PRUNED_PC_SIZE):
-
         self.PRUNED_PC_SIZE = PRUNED_PC_SIZE
 
         self.CAM_DIST = CAM_DIST
@@ -50,11 +50,13 @@ class DPNN:
 
     def makePC(self, l, r):
         disp_map = self.makeDisparityMap(l, r)
-        points = cv2.reprojectImageTo3D(disp_map, self.DISP_CAL)
+        img_points = cv2.reprojectImageTo3D(disp_map, self.DISP_CAL)
+        img_points[:, :, 0] = img_points[:, :, 0] * -1
+        img_points[:, :, 1] = img_points[:, :, 2] * -1
+        img_points[:, :, 2] = img_points[:, :, 1]
+
+        points = img_points
         points.shape = (-1, 3)
-        points[:, 0] = points[:, 0] * -1
-        points[:, 1] = points[:, 2] * -1
-        points[:, 2] = points[:, 1]
-        rand_list = np.random.randint(0, points.shape[0], size = [self.PRUNED_PC_SIZE])
+        rand_list = np.random.randint(0, points.shape[0], size=[self.PRUNED_PC_SIZE])
         pruned_points = points[rand_list, :]
-        return pruned_points, points
+        return pruned_points, img_points

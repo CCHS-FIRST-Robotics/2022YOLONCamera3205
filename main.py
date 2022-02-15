@@ -8,7 +8,7 @@ CAMERA_SIZE = (1280, 720)
 CROP_BORDER_SIZE = (40, 10)
 DOWNSCALE_FACTOR = (1, 1)
 # ind 0 is Left, ind 2 is Right
-CAM_PORTS = (1, 0, 2)
+CAM_PORTS = (1, 2)
 
 CAM_DIST = 0.15
 
@@ -21,6 +21,8 @@ DISP_CAL = np.array([[1., 0., 0., -292.3226819],
 
 PRUNED_PC_SIZE = 2500
 
+AREA_PROP = 0.4
+COL_PROP = 0.15
 
 class main:
     def __init__(self):
