@@ -8,17 +8,38 @@ class BallColorDetect:
         self.B_COL = B_COL
         self.AREA_PROP = AREA_PROP
         self.COL_PROP = COL_PROP
+        self.R_HUE = (R_COL[0] + R_COL[3]) * 0.5
+        self.B_HUE = (B_COL[0] + B_COL[3]) * 0.5
 
-    def colorContour(self, snp, col_range):
-        color_l = np.array(col_range[0:3])
-        color_h = np.array(col_range[2:6])
+    def houghDetect(self, snp):
         snp_hsv = cv2.cvtColor(snp, cv2.COLOR_BGR2HSV)
         snp_g = cv2.cvtColor(snp, cv2.COLOR_BGR2GRAY)
+        rows = snp_g.shape[0]
+        circles = cv2.HoughCircles(snp_g, cv2.HOUGH_GRADIENT, 1, rows / 8,
+                                   param1=100, param2=30,
+                                   minRadius=1, maxRadius=60)
+        postulate_ball_coords = []
+        if circles is not None:
+            circles = np.uint16(np.around(circles))
+            for i in circles[0, :]:
+                hue = snp_hsv[i[0], i[1], 0]
+                tag = "R"
+                if abs(hue - self.B_HUE) < abs(hue - self.R_HUE):
+                    tag = "B"
+                center = [i[0], i[1], tag]
+                postulate_ball_coords += [center]
+        return postulate_ball_coords
+
+    def colorContour(self, snp, col_range, tag):
+        color_l = np.array(col_range[0:3])
+        color_h = np.array(col_range[2:6])
+        snp = cv2.bilateralFilter(snp, 5, 75, 75)
+        snp_hsv = cv2.cvtColor(snp, cv2.COLOR_BGR2HSV)
 
         mask = cv2.inRange(snp_hsv, color_l, color_h)
+        kernel = np.ones((5, 5), np.uint8)
+        mask = cv2.erode(mask, kernel, iterations=5)
         contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-        canny = cv2.Canny(snp_g, 100, 200)
 
         postulate_ball_coords = []
 
@@ -36,6 +57,13 @@ class BallColorDetect:
 
             if radius > 8 and cv2.contourArea(contour) > self.AREA_PROP * (np.pi * radius ** 2) and (
                     color / 255) > self.COL_PROP:
-                postulate_ball_coords += [(x0, y0)]
+                postulate_ball_coords += [[x0, y0, tag]]
 
         return postulate_ball_coords
+
+    def ballDetect(self, snp):
+        red = self.colorContour(snp, self.R_COL, "R")
+        blue = self.colorContour(snp, self.B_COL, "B")
+        hough = self.houghDetect(snp)
+        ball_list = red + blue + hough
+        return ball_list
