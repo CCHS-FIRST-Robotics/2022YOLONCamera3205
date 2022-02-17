@@ -13,3 +13,13 @@ class BallTrack:
         post_points = self.bcd.ballDetect(snp)
         points = self.bpd.verifyAll(pc, post_points)
         return points
+
+    def updateTrack(self, odo, pc, snp):
+        points = self.getBalls(pc, snp)
+        for point in points:
+            xyz = pc[point[0:2], :]
+            xy = xyz[0:2]
+            xy.shape = (1, -1)
+            xy = odo.npTransform(xy)
+            xyz[0:2] = xy
+           
