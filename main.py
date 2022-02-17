@@ -2,8 +2,10 @@ import numpy as np
 import math
 from CameraHandler import CameraHandler
 from DeepPruner.NetDeploy import DPNN
+from Odometry import Odometry
 from display import Display
 from BallTrack.BallTrack import BallTrack
+from PathFinder.ObstacleDetect import ObstacleDetect
 import cv2
 import time
 
@@ -33,11 +35,20 @@ B_COL = [89, 30, 60, 125, 220, 220]
 
 BALL_RADIUS = 0.12
 
+LOCAL_POS = [-0.2, 0.3, 0.5]
+
+OBS_H_RANGE = [BALL_RADIUS + 0.03, 0.6]
+GRID_SIZE = 0.1
+TOWER_RAD = 1.5
+ROBOT_RAD = 0.4
+
 class main:
     def __init__(self):
         self.cam_hand = CameraHandler(CAMERA_SIZE, CROP_BORDER_SIZE, DOWNSCALE_FACTOR, CAM_PORTS)
         self.dp_pc = DPNN(CAM_DIST, DISP_CAL, PRUNED_PC_SIZE)
         self.ball_track = BallTrack(R_COL,B_COL,AREA_PROP, COL_PROP, BALL_RADIUS, X_FOV, [0.5, 1.5])
+        self.odo = Odometry(LOCAL_POS)
+        self.obsd = ObstacleDetect(OBS_H_RANGE, GRID_SIZE, TOWER_RAD, ROBOT_RAD)
         self.display = Display()
 
     def update(self):
@@ -45,6 +56,7 @@ class main:
         l, r = self.cam_hand.snapshot()
         disp, pruned_pc, pc = self.dp_pc.makePC(l, r)
         balls = self.ball_track.getBalls(pc, l)
+        map = self.obsd.updateMap(self.odo, pruned_pc)
         self.display.display(l, balls, disp)
         print("Elapsed Time: {}".format(time.time() - start_time))
 
