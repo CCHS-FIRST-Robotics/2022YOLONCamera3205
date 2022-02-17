@@ -26,7 +26,7 @@ class CameraHandler:
                             h - self.CROP_BORDER_SIZE[1]))
         w2, h2 = p_snp.size
         p_snp.resize((round(w2 * self.DOWNSCALE_FACTOR[0]), round(h2 * self.DOWNSCALE_FACTOR[1])))
-        return np.asarry(p_snp)
+        return np.asarray(p_snp)
 
     def snapshot(self):
         _, l_frame = self.lcam.read()

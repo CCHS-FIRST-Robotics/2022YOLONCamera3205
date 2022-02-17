@@ -35,6 +35,7 @@ class BallPCDetect:
     def getDists(self, pc, ring):
         if ring.shape[0] == 0:
             return np.zeros([0])
+        ring = ring.astype(int)
         points = pc[ring[:, 0], ring[:, 1], 0] ** 2 + pc[ring[:, 0], ring[:, 1], 1] ** 2 + pc[ring[:, 0], ring[:, 1], 2] ** 2
         points = points ** 0.5
         return points
@@ -44,7 +45,7 @@ class BallPCDetect:
         it_dist = self.BALL_RADIUS * self.CHECK_RING[0]
         ot_dist = self.BALL_RADIUS * self.CHECK_RING[1]
         x_size = pc.shape[1]
-        pixel_p_rad = x_size / (self.X_FOV * 2 * np.pi / 360)
+        pixel_p_rad = x_size / (self.X_FOV)
         itp = self.dist2pix(dist, it_dist, pixel_p_rad)
         otp = self.dist2pix(dist, ot_dist, pixel_p_rad)
         it_ring = self.checkRing(pc, coord, itp)

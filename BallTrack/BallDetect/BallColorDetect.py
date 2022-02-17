@@ -17,26 +17,30 @@ class BallColorDetect:
         rows = snp_g.shape[0]
         circles = cv2.HoughCircles(snp_g, cv2.HOUGH_GRADIENT, 1, rows / 8,
                                    param1=100, param2=30,
-                                   minRadius=1, maxRadius=60)
+                                   minRadius=4, maxRadius=50)
         postulate_ball_coords = []
         if circles is not None:
             circles = np.uint16(np.around(circles))
             for i in circles[0, :]:
-                hue = snp_hsv[i[0], i[1], 0]
-                tag = "R"
-                if abs(hue - self.B_HUE) < abs(hue - self.R_HUE):
-                    tag = "B"
-                center = [i[0], i[1], tag]
-                postulate_ball_coords += [center]
+                try:
+                    hue = snp_hsv[i[0], i[1], 0]
+                    tag = "R"
+                    if abs(hue - self.B_HUE) < abs(hue - self.R_HUE):
+                        tag = "B"
+                    center = [i[0], i[1], tag]
+                    postulate_ball_coords += [center]
+                except:
+                    print("oor")
+        
         return postulate_ball_coords
 
     def colorContour(self, snp, col_range, tag):
         color_l = np.array(col_range[0:3])
-        color_h = np.array(col_range[2:6])
+        color_h = np.array(col_range[3:6])
         snp = cv2.bilateralFilter(snp, 5, 75, 75)
-        snp_hsv = cv2.cvtColor(snp, cv2.COLOR_BGR2HSV)
-
-        mask = cv2.inRange(snp_hsv, color_l, color_h)
+        snp_hsv = cv2.cvtColor(np.float32(snp), cv2.COLOR_BGR2HSV)
+        
+        mask = cv2.inRange(np.float32(snp_hsv), color_l, color_h)
         kernel = np.ones((5, 5), np.uint8)
         mask = cv2.erode(mask, kernel, iterations=5)
         contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)

@@ -2,10 +2,14 @@ import numpy as np
 import math
 from CameraHandler import CameraHandler
 from DeepPruner.NetDeploy import DPNN
+from display import Display
+from BallTrack.BallTrack import BallTrack
+import cv2
+import time
 
 # ind 0 is the width, ind 1 is the height
 CAMERA_SIZE = (1280, 720)
-CROP_BORDER_SIZE = (40, 10)
+CROP_BORDER_SIZE = (32, 48)
 DOWNSCALE_FACTOR = (1, 1)
 # ind 0 is Left, ind 2 is Right
 CAM_PORTS = (1, 2)
@@ -24,7 +28,30 @@ PRUNED_PC_SIZE = 2500
 AREA_PROP = 0.4
 COL_PROP = 0.15
 
+R_COL = [0, 62, 80, 20, 220, 255]
+B_COL = [89, 30, 60, 125, 220, 220]
+
+BALL_RADIUS = 0.12
+
 class main:
     def __init__(self):
         self.cam_hand = CameraHandler(CAMERA_SIZE, CROP_BORDER_SIZE, DOWNSCALE_FACTOR, CAM_PORTS)
         self.dp_pc = DPNN(CAM_DIST, DISP_CAL, PRUNED_PC_SIZE)
+        self.ball_track = BallTrack(R_COL,B_COL,AREA_PROP, COL_PROP, BALL_RADIUS, X_FOV, [0.5, 1.5])
+        self.display = Display()
+
+    def update(self):
+        start_time = time.time()
+        l, r = self.cam_hand.snapshot()
+        disp, pruned_pc, pc = self.dp_pc.makePC(l, r)
+        balls = self.ball_track.getBalls(pc, l)
+        self.display.display(l, balls, disp)
+        print("Elapsed Time: {}".format(time.time() - start_time))
+
+m = main()
+if __name__ == "__main__":
+    while True:
+        m.update()
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    cv2.destroyAllWindows()

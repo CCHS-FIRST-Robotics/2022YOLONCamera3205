@@ -55,8 +55,8 @@ class DPNN:
         img_points[:, :, 1] = img_points[:, :, 2] * -1
         img_points[:, :, 2] = img_points[:, :, 1]
 
-        points = img_points
+        points = img_points.copy()
         points.shape = (-1, 3)
         rand_list = np.random.randint(0, points.shape[0], size=[self.PRUNED_PC_SIZE])
         pruned_points = points[rand_list, :]
-        return pruned_points, img_points
+        return disp_map, pruned_points, img_points
