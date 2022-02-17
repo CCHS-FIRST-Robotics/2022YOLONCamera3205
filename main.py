@@ -39,7 +39,7 @@ LOCAL_POS = [-0.2, 0.3, 0.5]
 
 OBS_H_RANGE = [BALL_RADIUS + 0.03, 0.6]
 GRID_SIZE = 0.1
-TOWER_RAD = 1.5
+TOWER_RAD = 1
 ROBOT_RAD = 0.4
 
 class main:
@@ -55,9 +55,11 @@ class main:
         start_time = time.time()
         l, r = self.cam_hand.snapshot()
         disp, pruned_pc, pc = self.dp_pc.makePC(l, r)
+        
         balls = self.ball_track.getBalls(pc, l)
+        
         map = self.obsd.updateMap(self.odo, pruned_pc)
-        self.display.display(l, balls, disp)
+        self.display.display(l, balls, disp, map)
         print("Elapsed Time: {}".format(time.time() - start_time))
 
 m = main()

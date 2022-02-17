@@ -4,7 +4,7 @@ import numpy as np
 class Odometry:
     def __init__(self, LOCAL_POS):
         self.r_pos = [0, 0]
-        self.l_pos = LOCAL_POS
+        self.l_pos = np.array(LOCAL_POS)
         self.l_pos.shape = [1, -1]
         self.heading = 0
 
@@ -17,9 +17,11 @@ class Odometry:
         xy = coords[:,0:2]
         rot_mat = np.array(
             [[np.cos(self.heading), -1 * np.sin(self.heading)], [np.sin(self.heading), np.cos(self.heading)]])
-        rotated_xy = np.matmul(rot_mat, xy)
+        rotated_xy = np.matmul(xy, rot_mat)
         pos_t = self.l_pos.copy()
         pos_t.shape = (1, -1)
-        new_xy = rotated_xy + np.tile(pos_t, [rotated_xy.shape[0], 1])
+        #rotated_xy2 = np.zeros([rotated_xy.shape[0], 3])
+        #rotated_xy2[:, 0:2] = rotated_xy
+        new_xy = rotated_xy + np.tile(pos_t[:,0:2], [rotated_xy.shape[0], 1])
         coords[:,0:2] = new_xy
         return coords

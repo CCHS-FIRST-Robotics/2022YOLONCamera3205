@@ -1,6 +1,7 @@
 import numpy as np
 import math
 import time
+import cv2
 
 
 class ObstacleDetect:
@@ -75,5 +76,6 @@ class ObstacleDetect:
         self.xyr2Cells(odo.r_pos)
         final_map = self.static_map * self.THRESH * 2 + self.map
         final_map = final_map > self.THRESH
-        final_map.astype(float)
+        final_map = final_map.astype(float)
+        final_map = cv2.dilate(final_map, np.ones([3,3]), iterations = 1)
         return final_map
