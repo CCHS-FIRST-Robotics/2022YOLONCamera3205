@@ -27,11 +27,11 @@ DISP_CAL = np.array([[1., 0., 0., -292.3226819],
 
 PRUNED_PC_SIZE = 2500
 
-AREA_PROP = 0.4
+AREA_PROP = 0.1
 COL_PROP = 0.15
 
-R_COL = [0, 62, 80, 20, 220, 255]
-B_COL = [89, 30, 60, 125, 220, 220]
+R_COL = [ 0, 100 ,  50, 15, 220, 255]
+B_COL = [ 100, 80 ,  50, 213, 220, 255]
 
 BALL_RADIUS = 0.12
 
@@ -56,10 +56,10 @@ class main:
         l, r = self.cam_hand.snapshot()
         disp, pruned_pc, pc = self.dp_pc.makePC(l, r)
         
-        balls = self.ball_track.getBalls(pc, l)
+        balls,r_mask, b_mask = self.ball_track.getBalls(pc, l, disp)
         
         map = self.obsd.updateMap(self.odo, pruned_pc)
-        self.display.display(l, balls, disp, map)
+        self.display.display(l, balls, disp, map, r_mask, b_mask)
         print("Elapsed Time: {}".format(time.time() - start_time))
 
 m = main()

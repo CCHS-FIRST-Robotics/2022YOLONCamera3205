@@ -9,10 +9,10 @@ class BallTrack:
         self.bcd = BallColorDetect(R_COL, B_COL, AREA_PROP, COL_PROP)
         self.bpd = BallPCDetect(BALL_RADIUS, X_FOV, CHECK_RING)
 
-    def getBalls(self, pc, snp):
-        post_points = self.bcd.ballDetect(snp)
+    def getBalls(self, pc, snp, disp):
+        post_points, r_mask, b_mask = self.bcd.ballDetect(snp, disp)
         points = self.bpd.verifyAll(pc, post_points)
-        return points
+        return points, r_mask, b_mask
 
     def updateTrack(self, odo, pc, snp):
         points = self.getBalls(pc, snp)

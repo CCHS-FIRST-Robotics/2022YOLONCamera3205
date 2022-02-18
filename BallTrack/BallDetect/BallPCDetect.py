@@ -41,7 +41,7 @@ class BallPCDetect:
         return points
 
     def verifyBall(self, pc, coord):
-        dist = self.np2mag(pc[coord[0], coord[1], :])
+        dist = self.np2mag(pc[round(coord[0]), round(coord[1]), :])
         it_dist = self.BALL_RADIUS * self.CHECK_RING[0]
         ot_dist = self.BALL_RADIUS * self.CHECK_RING[1]
         x_size = pc.shape[1]
@@ -59,12 +59,16 @@ class BallPCDetect:
         if ot_d.shape[0] == 0:
             ots = 0.01
         else:
-            ots = np.mean(np.abs(it_d - dist) > self.BALL_RADIUS * 0.5)
-        return (its > 0.5) and (ots > 0.5)
+            ots = np.mean(np.abs(ot_d - dist) > self.BALL_RADIUS * 0.5)
+        return (its > 0.) and (ots > 0.)
 
     def verifyAll(self, pc, coords):
         balls = []
         for coord in coords:
-            if self.verifyBall(pc, coord[0:2]):
+            try:
+                verify = self.verifyBall(pc, coord[0:2])
+            except:
+                verify = False
+            if verify:
                 balls += [coord]
         return balls
