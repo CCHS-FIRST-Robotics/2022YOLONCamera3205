@@ -59,7 +59,10 @@ class main:
         balls,r_mask, b_mask = self.ball_track.getBalls(pc, l, disp)
         
         map = self.obsd.updateMap(self.odo, pruned_pc)
-        self.display.display(l, balls, disp, map, r_mask, b_mask)
+        range_col, bange_col = self.display.display(l, balls, disp, map, r_mask, b_mask)
+        self.ball_track.bcd.R_COL = range_col
+        self.ball_track.bcd.B_COL = bange_col
+        print(range_col, bange_col)
         print("Elapsed Time: {}".format(time.time() - start_time))
 
 m = main()

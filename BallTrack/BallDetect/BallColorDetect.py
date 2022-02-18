@@ -16,9 +16,11 @@ class BallColorDetect:
         snp_g = cv2.cvtColor(snp, cv2.COLOR_BGR2GRAY)
         snp_g = cv2.medianBlur(snp_g, 9)
         rows = snp_g.shape[0]
+        disp[disp == None] = 0
+        disp = disp/np.max(disp)
         disp = disp.astype(float)
-        circles = cv2.HoughCircles(snp_g, cv2.HOUGH_GRADIENT, 1, rows / 8,
-                                   param1=50, param2=30,
+        circles = cv2.HoughCircles(disp, cv2.HOUGH_GRADIENT, 1, rows / 8,
+                                   param1=30, param2=15,
                                    minRadius=20, maxRadius=100)
         postulate_ball_coords = []
         if circles is not None:
@@ -30,7 +32,7 @@ class BallColorDetect:
                     tag = "R"
                     if abs(hue - self.B_HUE) < abs(hue - self.R_HUE):
                         tag = "B"
-                    center = [round(i[0]), round(i[1]), tag]
+                    center = [round(i[0]), round(i[1]), tag, i[2]]
                     postulate_ball_coords += [center]
                 except:
                     print("oor")
@@ -68,7 +70,7 @@ class BallColorDetect:
 
             if radius > 4 and cv2.contourArea(contour) > self.AREA_PROP * (np.pi * radius ** 2) and (
                     color / 255) > self.COL_PROP:
-                postulate_ball_coords += [[round(x0), round(y0), tag]]
+                postulate_ball_coords += [[round(x0), round(y0), tag, radius]]
 
         return postulate_ball_coords, mask
 

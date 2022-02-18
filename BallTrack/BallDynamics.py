@@ -1,8 +1,8 @@
 import numpy as np
 
 class BallSim:
-    def __init__(self, TOWER_RAD, BALL_RADIUS):
-        self.center_r = TOWER_RAD
+    def __init__(self, BALL_RADIUS):
+        self.center_r = 1
         self.ball_r = BALL_RADIUS
         self.dims = [16.46, 8.23]
         self.g = -9.81
@@ -17,6 +17,7 @@ class BallSim:
             down_vel = down_vel * -1 * self.bounce_prop
             naive_pred_height = -1 * naive_pred_height
         return naive_pred_height, down_vel
+
     def horiz_comp(self, pos, vels):
         #on floor check
         xy = np.array(pos[0:2])
@@ -38,5 +39,18 @@ class BallSim:
             xy_v[0] = xy_v[0] * -1 * self.bounce_prop
             xy[0] = xy[0] - (xy[0] - self.dims[0]/2) * 2
         # Top
+        if (xy[1] < self.dims[1]/2):
+            xy_v[1] = xy_v[1] * -1 * self.bounce_prop
+            xy[1] = xy[1] - (xy[1] + self.dims[1]/2) * 2
+        # Bottom
+        if (xy[1] > self.dims[1]/2):
+            xy_v[1] = xy_v[1] * -1 * self.bounce_prop
+            xy[1] = xy[1] - (xy[1] - self.dims[1]/2) * 2
 
-    def predict_bounce(self):
+        return xy, xy_v
+    def simulate(self, pos, vel):
+        z, z_vel = self.vertical_comp(pos[2], vel[2])
+        xy, xy_vel = self.horiz_comp(pos[0:2], vel[0:2])
+        pos_ = xy + [z]
+        vel_ = xy_vel + [z_vel]
+        return pos_, vel_
