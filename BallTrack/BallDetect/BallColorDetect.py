@@ -14,14 +14,17 @@ class BallColorDetect:
     def houghDetect(self, snp, disp):
         snp_hsv = cv2.cvtColor(snp, cv2.COLOR_BGR2HSV)
         snp_g = cv2.cvtColor(snp, cv2.COLOR_BGR2GRAY)
-        snp_g = cv2.medianBlur(snp_g, 9)
+        #snp_g = cv2.medianBlur(snp_g, 1)
         rows = snp_g.shape[0]
         disp[disp == None] = 0
         disp = disp/np.max(disp)
-        disp = disp.astype(float)
+        disp = disp * 255
+        disp = (disp + snp_g) * 0.5
+        disp = disp.astype(np.uint8)
+        #disp = cv2.medianBlur(disp, 3)
         circles = cv2.HoughCircles(disp, cv2.HOUGH_GRADIENT, 1, rows / 8,
-                                   param1=30, param2=15,
-                                   minRadius=20, maxRadius=100)
+                                   param1=100, param2=50,
+                                   minRadius=20, maxRadius=60)
         postulate_ball_coords = []
         if circles is not None:
             circles = np.uint16(np.around(circles))
@@ -39,45 +42,59 @@ class BallColorDetect:
         
         return postulate_ball_coords
 
-    def colorContour(self, snp, col_range, tag):
+    def colorContour(self, snp, col_range, tag, col_thresh):
         color_l = np.array(col_range[0:3])
         color_h = np.array(col_range[3:6])
-        snp = cv2.bilateralFilter(snp, 5, 75, 75)
+        snp = cv2.GaussianBlur(snp, (31,31),0)
+        #snp = cv2.bilateralFilter(snp, 5, 75, 75)
         snp_hsv = cv2.cvtColor(snp, cv2.COLOR_BGR2HSV)
         
-        print(np.max(snp_hsv))
         mask = cv2.inRange(snp_hsv, color_l, color_h)
-        kernel = np.ones((3, 3), np.uint8)
-        mask = cv2.erode(mask, np.ones((3,3), np.uint8) ,iterations = 2)
-        mask = cv2.dilate(mask, np.ones((3,3), np.uint8) ,iterations = 10)
-        mask = cv2.erode(mask, np.ones((5,5), np.uint8), iterations = 2)
-        mask = cv2.dilate(mask, np.ones((7,7), np.uint8) ,iterations = 4)
+        #kernel = np.ones((3, 3), np.uint8)
+        #mask = cv2.erode(mask, np.ones((3,3), np.uint8) ,iterations = 5)
+        #mask = cv2.dilate(mask, np.ones((3,3), np.uint8) ,iterations = 3)
+        #mask = cv2.erode(mask, np.ones((5,5), np.uint8), iterations = 2)
+        #mask = cv2.dilate(mask, np.ones((7,7), np.uint8) ,iterations = 4)
         contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         postulate_ball_coords = []
+        
+        target_hsv = (color_l[0] + color_l[1])*0.5
 
         for i, contour in enumerate(contours):
             ((x0, y0), radius) = cv2.minEnclosingCircle(contour)
+            circle_m = np.zeros(mask.shape, np.uint8)
+            cv2.circle(circle_m, (round(x0), round(y0)), round(radius), (255,255,255), -1)
+            upper = np.ones([round(y0), snp.shape[1]])
+            lower = np.zeros([snp.shape[0] - round(y0), snp.shape[1]])
+            ud_mask = np.concatenate([upper, lower],axis = 0)
 
-            # color test thing #
-            area = cv2.contourArea(contour)
-            x, y, w, h = cv2.boundingRect(contour)  # offsets - with this you get 'mask'
-            min_rect = cv2.minAreaRect(contour)
-            color = np.array(cv2.mean(mask[y:y + h, x:x + w])).astype(np.uint8)[0]
+            area = np.sum(mask * ud_mask * circle_m)
+            
+            #gen_area = (circle_m * snp_hsv[:,:,0])
+            #area_mask = gen_area != 0
+            #gen_area = np.abs(gen_area - target_hsv) 
+            #gen_area = np.exp(-1 * ((gen_area - target_hsv)/20)**2) * 2
+            #gen_area = np.sum(gen_area[area_mask])
+            
+            #area = cv2.contourArea(contour)
+            mean_color = cv2.mean(snp_hsv, mask = circle_m)
+            
+            color_diff_mag = np.abs(mean_color[0] - target_hsv )
+            print(area, (np.pi * radius ** 2), color_diff_mag)
 
-            rad_check = radius > 4
-            area_check = area > self.AREA_PROP * (np.pi * radius ** 2)
 
-            if radius > 4 and cv2.contourArea(contour) > self.AREA_PROP * (np.pi * radius ** 2) and (
-                    color / 255) > self.COL_PROP:
+            if radius > 2 and area * 2 > self.AREA_PROP * (np.pi * radius ** 2) and color_diff_mag < col_thresh:
                 postulate_ball_coords += [[round(x0), round(y0), tag, radius]]
 
         return postulate_ball_coords, mask
 
     def ballDetect(self, snp, disp):
-        red, rmask = self.colorContour(snp, self.R_COL, "R")
-        blue, bmask = self.colorContour(snp, self.B_COL, "B")
-        hough = self.houghDetect(snp, disp)
-        #ball_list = red + blue + hough
-        ball_list = hough
+        print("R Cols")
+        red, rmask = self.colorContour(snp, self.R_COL, "R", 90)
+        print("B Cols")
+        blue, bmask = self.colorContour(snp, self.B_COL, "B", 40)
+        #hough = self.houghDetect(snp, disp)
+        ball_list = red + blue# + hough
+        #ball_list = hough
         return ball_list, rmask, bmask

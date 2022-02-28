@@ -41,13 +41,24 @@ class BallPCDetect:
         return points
 
     def verifyBall(self, pc, coord):
+        x = coord[0]
+        y = coord[1]
+        coord[0] = y
+        coord[1] = x
         dist = self.np2mag(pc[round(coord[0]), round(coord[1]), :])
         it_dist = self.BALL_RADIUS * self.CHECK_RING[0]
         ot_dist = self.BALL_RADIUS * self.CHECK_RING[1]
         x_size = pc.shape[1]
         pixel_p_rad = x_size / (self.X_FOV)
-        itp = self.dist2pix(dist, it_dist, pixel_p_rad)
-        otp = self.dist2pix(dist, ot_dist, pixel_p_rad)
+
+        ball_pixel = self.dist2pix(dist, self.BALL_RADIUS, pixel_p_rad)
+        pixel_err = abs(ball_pixel - coord[3])
+        print("Ball pixel", pixel_err, dist, ball_pixel, coord[3])
+
+        #itp = self.dist2pix(dist, it_dist, pixel_p_rad)
+        #otp = self.dist2pix(dist, ot_dist, pixel_p_rad)
+        itp = coord[3] * self.CHECK_RING[0]
+        otp = coord[3] * self.CHECK_RING[1]
         it_ring = self.checkRing(pc, coord, itp)
         ot_ring = self.checkRing(pc, coord, otp)
         it_d = self.getDists(pc, it_ring)
@@ -55,18 +66,19 @@ class BallPCDetect:
         if it_d.shape[0] == 0:
             its = 0.01
         else:
-            its = np.mean(np.abs(it_d - dist) < self.BALL_RADIUS * 0.5)
+            its = np.mean(np.abs(it_d - dist) < self.BALL_RADIUS * 0.7)
         if ot_d.shape[0] == 0:
             ots = 0.01
         else:
-            ots = np.mean(np.abs(ot_d - dist) > self.BALL_RADIUS * 0.5)
-        return (its > 0.) and (ots > 0.)
+            ots = np.mean(np.abs(ot_d - dist) > self.BALL_RADIUS * 0.7)
+        return ( its*2 + ots > 2.3 )and (pixel_err < 50)
 
     def verifyAll(self, pc, coords):
         balls = []
+        print(coords)
         for coord in coords:
             try:
-                verify = self.verifyBall(pc, coord[0:2])
+                verify = self.verifyBall(pc, coord.copy())
             except:
                 verify = False
             if verify:

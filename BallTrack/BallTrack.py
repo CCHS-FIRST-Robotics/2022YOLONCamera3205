@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from BallTrack.BallDetect.BallColorDetect import BallColorDetect
 from BallTrack.BallDetect.BallPCDetect import BallPCDetect
-from Ball import Ball
+from BallTrack.Ball import Ball
 import time
 
 
@@ -10,7 +10,7 @@ class BallTrack:
     def __init__(self, R_COL, B_COL, AREA_PROP, COL_PROP, BALL_RADIUS, X_FOV, CHECK_RING, N=40):
         self.bcd = BallColorDetect(R_COL, B_COL, AREA_PROP, COL_PROP)
         self.bpd = BallPCDetect(BALL_RADIUS, X_FOV, CHECK_RING)
-        self.ball_list = [self.Ball(BALL_RADIUS)] * N
+        self.ball_list = [Ball(BALL_RADIUS)] * N
         self.prev_time = time.time()
 
     def getBalls(self, pc, snp, disp):

@@ -1,6 +1,6 @@
 import numpy as np
 import time
-from BallDynamics import BallSim
+from BallTrack.BallDynamics import BallSim
 
 
 class Ball:

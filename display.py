@@ -7,26 +7,24 @@ def nothing(*arg):
 
 
 class Display:
-    def __init__(self):
+    def __init__(self, r_mask, b_mask):
         cv2.namedWindow('trackbars_r')
 
-        cv2.createTrackbar('lowHue', 'trackbars_r', 0, 255, nothing)
-        cv2.createTrackbar('lowSat', 'trackbars_r', 0, 255, nothing)
-        cv2.createTrackbar('lowVal', 'trackbars_r', 0, 255, nothing)
-        # Higher range colour sliders.
-        cv2.createTrackbar('highHue', 'trackbars_r', 0, 255, nothing)
-        cv2.createTrackbar('highSat', 'trackbars_r', 0, 255, nothing)
-        cv2.createTrackbar('highVal', 'trackbars_r', 0, 255, nothing)
+        cv2.createTrackbar('lowHue', 'trackbars_r', r_mask[0], 255, nothing)
+        cv2.createTrackbar('lowSat', 'trackbars_r', r_mask[1], 255, nothing)
+        cv2.createTrackbar('lowVal', 'trackbars_r', r_mask[2], 255, nothing)
+        cv2.createTrackbar('highHue', 'trackbars_r', r_mask[3], 255, nothing)
+        cv2.createTrackbar('highSat', 'trackbars_r', r_mask[4], 255, nothing)
+        cv2.createTrackbar('highVal', 'trackbars_r', r_mask[5], 255, nothing)
 
         cv2.namedWindow('trackbars_b')
 
-        cv2.createTrackbar('lowHue', 'trackbars_b', 0, 255, nothing)
-        cv2.createTrackbar('lowSat', 'trackbars_b', 0, 255, nothing)
-        cv2.createTrackbar('lowVal', 'trackbars_b', 0, 255, nothing)
-        # Higher range colour sliders.
-        cv2.createTrackbar('highHue', 'trackbars_b', 0, 255, nothing)
-        cv2.createTrackbar('highSat', 'trackbars_b', 0, 255, nothing)
-        cv2.createTrackbar('highVal', 'trackbars_b', 0, 255, nothing)
+        cv2.createTrackbar('lowHue', 'trackbars_b', b_mask[0], 255, nothing)
+        cv2.createTrackbar('lowSat', 'trackbars_b', b_mask[1], 255, nothing)
+        cv2.createTrackbar('lowVal', 'trackbars_b', b_mask[2], 255, nothing)
+        cv2.createTrackbar('highHue', 'trackbars_b', b_mask[3], 255, nothing)
+        cv2.createTrackbar('highSat', 'trackbars_b', b_mask[4], 255, nothing)
+        cv2.createTrackbar('highVal', 'trackbars_b', b_mask[5], 255, nothing)
 
         return
 
@@ -34,9 +32,9 @@ class Display:
         cv2.imshow("Disparity Map", disp / np.max(disp))
         for coord in ball_coords:
             if coord[2] == "R":
-                cv2.circle(color, (coord[0], coord[1]), coord[3], (0, 0, 255), 2)
+                cv2.circle(color, (coord[0], coord[1]), round(coord[3]), (0, 0, 255), 2)
             else:
-                cv2.circle(color, (coord[0], coord[1]), coord[3], (255, 0, 0), 2)
+                cv2.circle(color, (coord[0], coord[1]), round(coord[3]), (255, 0, 0), 2)
         cv2.imshow("Color Img", color)
         map = map.astype(float)
         map = cv2.resize(map, (map.shape[1] * 4, map.shape[0] * 4), interpolation=cv2.INTER_AREA)
