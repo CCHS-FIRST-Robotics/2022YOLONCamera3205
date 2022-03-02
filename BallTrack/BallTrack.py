@@ -8,18 +8,10 @@ import time
 
 class BallTrack:
     def __init__(self, R_COL, B_COL, AREA_PROP, COL_PROP, BALL_RADIUS, X_FOV, CHECK_RING, N=40):
-        self.bcd = BallColorDetect(R_COL, B_COL, AREA_PROP, COL_PROP)
-        self.bpd = BallPCDetect(BALL_RADIUS, X_FOV, CHECK_RING)
         self.ball_list = [Ball(BALL_RADIUS)] * N
         self.prev_time = time.time()
 
-    def getBalls(self, pc, snp, disp):
-        post_points, r_mask, b_mask = self.bcd.ballDetect(snp, disp)
-        points = self.bpd.verifyAll(pc, post_points)
-        return points, r_mask, b_mask
-
-    def updateTrack(self, odo, pc, snp):
-        points, r_mask, b_mask = self.getBalls(pc, snp)
+    def updateTrack(self, points, pc, odo):
         options_list = []
         dt = time.time() - self.prev_time
         self.prev_time = time.time()
@@ -45,6 +37,8 @@ class BallTrack:
                 if min_dist < ball.getSpd() * dt + 0.2:
                     ball.update(o_pt)
                     options_list.pop(option)
+                elif ball.fresh == 0:
+                    ball.reset()
                 if time.time() - ball.last_tracked > 1.5:
                     ball.reset()
         n = 0
@@ -57,4 +51,4 @@ class BallTrack:
                 self.ball_list[c].init(xyz, points[2])
                 options_list.pop(0)
             n += 1
-        return points, r_mask, b_mask
+        return self.ball_list

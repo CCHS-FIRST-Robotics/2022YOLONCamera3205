@@ -15,7 +15,7 @@ class Ball:
         self.state = 0
         self.aerial = 0
         self.color = 0
-        self.fresh = 0
+        self.fresh = 0 #0 fresh, 1 stable
         self.last_tracked = time.time()
         self.sim = BallSim(self.BALL_RADIUS)
 
@@ -31,6 +31,7 @@ class Ball:
         else:
             self.aeriel = 1
         self.state = state
+        self.fresh = 0
 
     def predict(self, dt):
         self.sim.dt = dt
@@ -48,6 +49,7 @@ class Ball:
         self.vel = [self.vel[0] * vf + self.emp_vel[0] * (1 - vf), self.vel[1] * vf + self.emp_vel[1] * (1 - vf),
                     self.vel[2] * vf + self.vemp_vel[2]]
         self.last_tracked = time.time()
+        self.fresh = 1
 
     def getDist(self, x2):
         return ((x2[0] - self.pos[0])**2 + (x2[1] - self.pos[1])**2 + (x2[2] - self.pos[2])**2)**0.5
