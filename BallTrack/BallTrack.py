@@ -24,16 +24,19 @@ class BallTrack:
                 option = -1
                 o_pt = [0, 0, 0]
                 for c in range(len(options_list)):
-                    point = points[options_list[c]]
-                    xyz = pc[point[0:2], :]
-                    xyz.shape = (1, -1)
-                    xyz = odo.npTransform(xyz)
-                    if point[2] == "R" and ball.color == 0:
-                        dist = ball.getDist(xyz)
-                        if dist < min_dist:
-                            min_dist = dist
-                            option = c
-                            o_pt = xyz
+                    try:
+                        point = points[options_list[c]]
+                        xyz = pc[point[0:2], :]
+                        xyz.shape = (1, -1)
+                        xyz = odo.npTransform(xyz)
+                        if point[2] == "R" and ball.color == 0:
+                            dist = ball.getDist(xyz)
+                            if dist < min_dist:
+                                min_dist = dist
+                                option = c
+                                o_pt = xyz
+                    except:
+                        print("oob")
                 if min_dist < ball.getSpd() * dt + 0.2:
                     ball.update(o_pt)
                     options_list.pop(option)
@@ -43,12 +46,14 @@ class BallTrack:
                     ball.reset()
         n = 0
         while len(options_list) > 0 and n < len(self.ball_list):
-            if self.ball_list[c].state == 0:
+            if self.ball_list[n].state == 0:
                 point = points[options_list[0]]
-                xyz = pc[point[0:2], :]
-                xyz.shape = (1, -1)
+                xyz = pc[point[1], point[0], :]
+                xyz.shape = (1, 3)
                 xyz = odo.npTransform(xyz)
-                self.ball_list[c].init(xyz, points[2])
+                xyz.shape = (-1)
+                print(xyz)
+                self.ball_list[n].init(list(xyz), point[2])
                 options_list.pop(0)
             n += 1
         return self.ball_list

@@ -25,6 +25,7 @@ class Ball:
         else:
             self.color = 1
         self.pos = pos
+        self.vel = [0, 0, 0]
         self.prev_pos = pos
         if self.pos[2] < self.BALL_RADIUS * 2:
             self.aerial = 0
@@ -47,7 +48,7 @@ class Ball:
         self.pos = [self.pos[0] * pf + self.emp_pos[0] * (1 - pf), self.pos[1] * pf + self.emp_pos[1] * (1 - pf),
                     self.pos[2] * pf + self.emp_pos[2] * (1 - pf)]
         self.vel = [self.vel[0] * vf + self.emp_vel[0] * (1 - vf), self.vel[1] * vf + self.emp_vel[1] * (1 - vf),
-                    self.vel[2] * vf + self.vemp_vel[2]]
+                    self.vel[2] * vf + self.emp_vel[2] * (1 - vf)]
         self.last_tracked = time.time()
         self.fresh = 1
 

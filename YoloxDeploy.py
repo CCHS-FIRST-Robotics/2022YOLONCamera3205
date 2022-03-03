@@ -49,7 +49,7 @@ class YoloxDeploy:
                 c = round(b[c, 6])
                 center = (round((x1+x2)*0.5), round((y1+y2)*0.5))
                 radius = max(abs(x1 - x2), abs(y1 - y2)) * 0.4
-                if c == 0:
+                if c == 1:
                     #blue
                     col = "B"
                 else:
