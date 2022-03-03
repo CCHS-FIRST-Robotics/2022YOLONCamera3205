@@ -1,14 +1,13 @@
 import numpy as np
 import math
 from CameraHandler import CameraHandler
-from DeepPruner.NetDeploy import DPNN
 from Odometry import Odometry
 from display import Display
 from BallTrack.BallTrack import BallTrack
-from PathFinder.ObstacleDetect import ObstacleDetect
 import cv2
 import time
 import YoloxDeploy
+from VisualPosEst import pixel2LPos
 
 # ind 0 is the width, ind 1 is the height
 CAMERA_SIZE = (1280, 720)
@@ -43,28 +42,25 @@ GRID_SIZE = 0.1
 TOWER_RAD = 1
 ROBOT_RAD = 0.4
 
+
 class main:
     def __init__(self):
         self.cam_hand = CameraHandler(CAMERA_SIZE, CROP_BORDER_SIZE, DOWNSCALE_FACTOR, CAM_PORTS)
-        self.dp_pc = DPNN(CAM_DIST, DISP_CAL, PRUNED_PC_SIZE)
-        self.ball_track = BallTrack(R_COL,B_COL,AREA_PROP, COL_PROP, BALL_RADIUS, X_FOV, [0.3, 1.2])
+        self.ball_track = BallTrack(R_COL, B_COL, AREA_PROP, COL_PROP, BALL_RADIUS, X_FOV, [0.3, 1.2])
         self.odo = Odometry(LOCAL_POS)
-        self.obsd = ObstacleDetect(OBS_H_RANGE, GRID_SIZE, TOWER_RAD, ROBOT_RAD)
         self.display = Display()
         self.yolox = YoloxDeploy.YoloxDeploy()
 
-            
     def update(self):
         start_time = time.time()
         l, r = self.cam_hand.snapshot()
-        disp, pruned_pc, pc = self.dp_pc.makePC(l, r)
         balls = self.yolox.deploy(l)
-        ball_list = self.ball_track.updateTrack(balls, pc, self.odo)
-        
-        map = self.obsd.updateMap(self.odo, pruned_pc)
-        self.display.display(l, balls, disp, map)
+        ball_list = self.ball_track.updateTrack(balls, pixel2LPos, l.shape, self.odo)
+
+        self.display.display(l, balls)
         print(ball_list)
         print("Elapsed Time: {}".format(time.time() - start_time))
+
 
 m = main()
 if __name__ == "__main__":

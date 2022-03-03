@@ -11,7 +11,7 @@ class BallTrack:
         self.ball_list = [Ball(BALL_RADIUS)] * N
         self.prev_time = time.time()
 
-    def updateTrack(self, points, pc, odo):
+    def updateTrack(self, points, p2p, img_shape, odo):
         options_list = []
         dt = time.time() - self.prev_time
         self.prev_time = time.time()
@@ -26,7 +26,7 @@ class BallTrack:
                 for c in range(len(options_list)):
                     try:
                         point = points[options_list[c]]
-                        xyz = pc[point[0:2], :]
+                        xyz = np.array(p2p(img_shape, point[0], point[1], point[3]))
                         xyz.shape = (1, -1)
                         xyz = odo.npTransform(xyz)
                         if point[2] == "R" and ball.color == 0:
@@ -48,7 +48,7 @@ class BallTrack:
         while len(options_list) > 0 and n < len(self.ball_list):
             if self.ball_list[n].state == 0:
                 point = points[options_list[0]]
-                xyz = pc[point[1], point[0], :]
+                xyz = np.array(p2p(img_shape, point[0], point[1], point[3]))
                 xyz.shape = (1, 3)
                 xyz = odo.npTransform(xyz)
                 xyz.shape = (-1)
