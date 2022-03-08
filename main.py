@@ -54,12 +54,11 @@ class main:
     def update(self):
         start_time = time.time()
         l, r = self.cam_hand.snapshot()
-        test_img = cv2.imread("aaa.png")
-        self.yolon.deploy(test_img)
-        #balls = self.yolon.deploy(l)
-        #ball_list = self.ball_track.updateTrack(balls, pixel2LPos, l.shape, self.odo)
-
-        #self.display.display(l, balls)
+        #test_img = cv2.imread("image_40.jpg")
+        #self.yolon.deploy(test_img)
+        balls = self.yolon.deploy(l)
+        ball_list = self.ball_track.updateTrack(balls, pixel2LPos, l.shape, self.odo)
+        self.display.display(l, balls)
         #print(ball_list)
         print("Elapsed Time: {}".format(time.time() - start_time))
 
