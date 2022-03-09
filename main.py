@@ -7,7 +7,7 @@ from BallTrack.BallTrack import BallTrack
 import cv2
 import time
 import YoloNDeploy
-from VisualPosEst import pixel2LPos
+from VisualPosEst import ball2coords
 
 # ind 0 is the width, ind 1 is the height
 CAMERA_SIZE = (1280, 720)
@@ -54,15 +54,17 @@ class main:
     def update(self):
         start_time = time.time()
         l, r = self.cam_hand.snapshot()
-        #test_img = cv2.imread("image_40.jpg")
+        test_img = cv2.imread("image_40.jpg")
         #self.yolon.deploy(test_img)
-        balls = self.yolon.deploy(l)
-        ball_list = self.ball_track.updateTrack(balls, pixel2LPos, l.shape, self.odo)
-        self.display.display(l, balls)
+        l = test_img
+        r = test_img
+        lball, rball = self.yolon.deploy(l, r)
+        ball_list = self.ball_track.updateTrack(lball, rball, ball2coords, l.shape, self.odo)
+        self.display.display(l, lball)
         #print(ball_list)
         print("Elapsed Time: {}".format(time.time() - start_time))
-
-
+        
+        
 m = main()
 if __name__ == "__main__":
     while True:
