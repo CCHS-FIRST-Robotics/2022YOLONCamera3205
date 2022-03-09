@@ -39,7 +39,8 @@ class BallTrack:
                         print("oob")
                 if min_dist < ball.getSpd() * dt + 0.2:
                     ball.update(o_pt)
-                    options_list.pop(option)
+                    if (len(options_list) > 0):
+                        options_list.pop(option)
                 elif ball.fresh == 0:
                     ball.reset()
                 if time.time() - ball.last_tracked > 1.5:
@@ -52,7 +53,6 @@ class BallTrack:
                 xyz.shape = (1, 3)
                 xyz = odo.npTransform(xyz)
                 xyz.shape = (-1)
-                print(xyz)
                 self.ball_list[n].init(list(xyz), point[2])
                 if (len(options_list) > 0):
                    options_list.pop(0)

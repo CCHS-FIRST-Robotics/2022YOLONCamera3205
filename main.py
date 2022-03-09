@@ -8,6 +8,7 @@ import cv2
 import time
 import YoloNDeploy
 from VisualPosEst import ball2coords
+from CNetworkTable import CNetworkTable
 
 # ind 0 is the width, ind 1 is the height
 CAMERA_SIZE = (1280, 720)
@@ -50,19 +51,21 @@ class main:
         self.odo = Odometry(LOCAL_POS)
         self.display = Display()
         self.yolon = YoloNDeploy.YoloNDeploy()
+        self.networkT = CNetworkTable()
 
     def update(self):
         start_time = time.time()
         l, r = self.cam_hand.snapshot()
-        test_img = cv2.imread("image_40.jpg")
+        #test_img = cv2.imread("image_40.jpg")
         #self.yolon.deploy(test_img)
-        l = test_img
-        r = test_img
+        #l = test_img
+        #r = test_img
         lball, rball = self.yolon.deploy(l, r)
         ball_list = self.ball_track.updateTrack(lball, rball, ball2coords, l.shape, self.odo)
         self.display.display(l, lball)
         #print(ball_list)
         print("Elapsed Time: {}".format(time.time() - start_time))
+        self.networkT.updateNetwork(self.odo, ball_list)
         
         
 m = main()
