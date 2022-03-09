@@ -45,10 +45,10 @@ class Ball:
         emp_vel = [emp_vel[0], emp_vel[1], emp_vel[2]]
         pf = 0.2
         vf = 0.5
-        self.pos = [self.pos[0] * pf + self.emp_pos[0] * (1 - pf), self.pos[1] * pf + self.emp_pos[1] * (1 - pf),
-                    self.pos[2] * pf + self.emp_pos[2] * (1 - pf)]
-        self.vel = [self.vel[0] * vf + self.emp_vel[0] * (1 - vf), self.vel[1] * vf + self.emp_vel[1] * (1 - vf),
-                    self.vel[2] * vf + self.emp_vel[2] * (1 - vf)]
+        self.pos = [self.pos[0] * pf + emp_pos[0] * (1 - pf), self.pos[1] * pf + emp_pos[1] * (1 - pf),
+                    self.pos[2] * pf + emp_pos[2] * (1 - pf)]
+        self.vel = [self.vel[0] * vf + emp_vel[0] * (1 - vf), self.vel[1] * vf + emp_vel[1] * (1 - vf),
+                    self.vel[2] * vf + emp_vel[2] * (1 - vf)]
         self.last_tracked = time.time()
         self.fresh = 1
 

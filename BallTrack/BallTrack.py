@@ -54,6 +54,7 @@ class BallTrack:
                 xyz.shape = (-1)
                 print(xyz)
                 self.ball_list[n].init(list(xyz), point[2])
-                options_list.pop(0)
+                if (len(options_list) > 0):
+                   options_list.pop(0)
             n += 1
         return self.ball_list
