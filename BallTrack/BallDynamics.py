@@ -24,7 +24,6 @@ class BallSim:
         xy_vi = np.array(vels[0:2])
         xy_v_mag = (vels[0]**2 + vels[1]**2)**0.5
         xy_v = xy_vi
-        print(pos, vels)
         if pos[2] < self.ball_r*2 and abs(vels[2]) < 0.2:
             xy_v = xy_vi - self.dt * self.r_fric * xy_vi/xy_v_mag
             if xy_v_mag < self.dt * self.r_fric:
@@ -54,6 +53,4 @@ class BallSim:
         xy, xy_vel = self.horiz_comp(pos, vel)
         pos_ = list(xy) + [z]
         vel_ = list(xy_vel) + [z_vel]
-        print(pos_, vel_, xy, xy_vel, z, z_vel)
-        print([z], [z_vel])
         return pos_, vel_

@@ -27,7 +27,7 @@ class YoloNDeploy:
         return l0
 
     def pred2box(self, pred, init_size):
-        pred = non_max_suppression(pred, 0.8, 0.45, max_det=4)
+        pred = non_max_suppression(pred, 0.8, 0.7, max_det=40)
         x_l = lambda x: round(((x - 416 / 2) * init_size[1] / 416) + (init_size[1] / 2))
         y_l = lambda y: round(((y - 416 / 2) * init_size[0] / 416) + (init_size[0] / 2))
         ball_list = []
@@ -43,7 +43,7 @@ class YoloNDeploy:
                     x2 = x_l(b[2].cpu().numpy())
                     y2 = y_l(b[3].cpu().numpy())
                     center = (round((x1 + x2) * 0.5), round((y1 + y2) * 0.5))
-                    radius = max(abs(x1 - x2), abs(y1 - y2)) * 0.4
+                    radius = max(abs(x1 - x2), abs(y1 - y2)) * 0.5
                     if cls.cpu().numpy() == 1:
                         # blue
                         col = "R"

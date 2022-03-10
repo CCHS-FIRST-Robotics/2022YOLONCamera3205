@@ -19,7 +19,7 @@ class CNetworkTable:
             self.table.putNumberArray(vel_str, ball.vel)
             self.table.putNumberArray(g_str, [ball.state, ball.aerial, ball.color, ball.fresh])
 
-            if (ball.state != 0):
+            if (ball.state != 0 and ball.color == 0):
                 print("Ball: {}".format(ball.pos))
 
     def getOdometry(self, odo):

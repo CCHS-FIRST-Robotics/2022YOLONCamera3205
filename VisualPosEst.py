@@ -2,7 +2,7 @@ import numpy as np
 
 
 
-BALL_RADIUS = 0.12
+BALL_RADIUS = 0.195
 
 X_FOV = 53
 Y_FOV = 39.75
@@ -17,21 +17,23 @@ def ball2coords(cam_shape, lballs, rballs, index):
     for c in range(len(rballs)):
         ball = rballs[c]
         if ball[2] == color:
+            print("match", ball[0], given_ball[0])
             if ball[0] > given_ball[0]:
                 if abs(ball[1] - given_ball[1]) < min_y_disp:
                     min_y_disp = abs(ball[1] - given_ball[1])
                     min_index = c
     if min_y_disp < 10:
+        print("Disp", ball[0] - given_ball[0])
         xl_t, yl_t = pixel2Theta(cam_shape, given_ball[0], given_ball[1])
         xr_t, yr_t = pixel2Theta(cam_shape, rballs[min_index][0], rballs[min_index][1])
         #
-        left_triangle_angle = 90 + xl_t
-        right_triangle_angle = 90 - xr_t
+        left_triangle_angle = np.pi*0.5 + xl_t
+        right_triangle_angle = np.pi*0.5 - xr_t
         #sin(rta)/dist = sin(xr_t - xl_t) / X_DIST
-        dist = X_DIST * np.sin(right_triangle_angle) / (np.sin(xr_t - xl_t) + 0.001)
-        x_disp = np.sin(x_theta) * dist
-        z_disp = np.sin(y_theta) * dist
-        y_disp = np.cos(x_theta) * dist
+        dist = X_DIST * np.sin(right_triangle_angle) / (abs(np.sin(xr_t - xl_t)) + 0.001)
+        x_disp = np.sin(xl_t) * dist
+        z_disp = np.sin(yl_t) * dist
+        y_disp = np.cos(xl_t) * dist
         return [x_disp, y_disp, z_disp]
     else:
         return pixel2LPos(cam_shape, given_ball[0], given_ball[1], given_ball[3])
