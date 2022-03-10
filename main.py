@@ -10,6 +10,7 @@ import YoloNDeploy
 from VisualPosEst import ball2coords
 from CNetworkTable import CNetworkTable
 from Ball2LPos import Ball2LPos
+from MonocularOdometry import MonocularOdometry
 
 # ind 0 is the width, ind 1 is the height
 CAMERA_SIZE = (1280, 720)
@@ -54,6 +55,7 @@ class main:
         self.yolon = YoloNDeploy.YoloNDeploy()
         self.networkT = CNetworkTable()
         self.ball2pos = Ball2LPos((480, 640))
+        self.monoOdo = MonocularOdometry(cam_mat = np.genfromtxt("new_mtxL.csv", delimiter=','))
 
     def update(self):
         start_time = time.time()
@@ -65,6 +67,8 @@ class main:
         nball_list = self.ball2pos.makeBallList(lball, rball)
         ball_list = self.ball_track.updateTrack(nball_list, l.shape, self.odo)
         self.display.display(l, lball)
+        self.monoOdo.process_frame(l)
+        print(self.monoOdo.get_true_coordinates())
         #print(ball_list)
         print("Elapsed Time: {}".format(time.time() - start_time))
         self.networkT.updateNetwork(self.odo, ball_list)
