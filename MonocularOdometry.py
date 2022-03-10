@@ -31,7 +31,6 @@ class MonocularOdometry(object):
         self.t = np.zeros(shape=(3, 3))
         self.id = 0
         self.n_features = 0
-        self.process_frame()
 
     def detect(self, img):
         '''Used to detect features and parse into useable format
@@ -61,7 +60,9 @@ class MonocularOdometry(object):
         # Calculate optical flow between frames, st holds status
         # of points from frame to frame
         self.p1, st, err = cv2.calcOpticalFlowPyrLK(self.old_frame, self.current_frame, self.p0, None, **self.lk_params)
-
+        
+        if self.p1 is None:
+            return
         # Save the good points from the optical flow
         self.good_old = self.p0[st == 1]
         self.good_new = self.p1[st == 1]
@@ -77,10 +78,8 @@ class MonocularOdometry(object):
             _, R, t, _ = cv2.recoverPose(E, self.good_old, self.good_new, self.R.copy(), self.t.copy(), self.focal,
                                          self.pp, None)
 
-            absolute_scale = self.get_absolute_scale()
-            if (absolute_scale > 0.1 and abs(t[2][0]) > abs(t[0][0]) and abs(t[2][0]) > abs(t[1][0])):
-                self.t = self.t + absolute_scale * self.R.dot(t)
-                self.R = R.dot(self.R)
+            self.t = self.t + self.R.dot(t)
+            self.R = R.dot(self.R)
 
         # Save the total number of good features
         self.n_features = self.good_new.shape[0]
@@ -93,37 +92,13 @@ class MonocularOdometry(object):
                          [0, 0, -1]])
         adj_coord = np.matmul(diag, self.t)
 
+        adj_coord[1] = adj_coord[1] * -1
+        adj_coord[2] = adj_coord[2] * -1
+
+        adj_coord = adj_coord * 0.01
+
         return adj_coord.flatten()
 
-    def get_true_coordinates(self):
-        '''Returns true coordinates of vehicle
-
-        Returns:
-            np.array -- Array in format [x, y, z]
-        '''
-        return self.true_coord.flatten()
-
-    def get_absolute_scale(self):
-        '''Used to provide scale estimation for mutliplying
-           translation vectors
-
-        Returns:
-            float -- Scalar value allowing for scale estimation
-        '''
-        pose = self.pose[self.id - 1].strip().split()
-        x_prev = float(pose[3])
-        y_prev = float(pose[7])
-        z_prev = float(pose[11])
-        pose = self.pose[self.id].strip().split()
-        x = float(pose[3])
-        y = float(pose[7])
-        z = float(pose[11])
-
-        true_vect = np.array([[x], [y], [z]])
-        self.true_coord = true_vect
-        prev_vect = np.array([[x_prev], [y_prev], [z_prev]])
-
-        return np.linalg.norm(true_vect - prev_vect)
 
     def process_frame(self, frame):
         '''Processes images in sequence frame by frame

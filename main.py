@@ -17,7 +17,7 @@ CAMERA_SIZE = (1280, 720)
 CROP_BORDER_SIZE = (32, 48)
 DOWNSCALE_FACTOR = (1, 1)
 # ind 0 is Left, ind 2 is Right
-CAM_PORTS = (1, 2)
+CAM_PORTS = (2, 1)
 
 CAM_DIST = 0.15
 
@@ -55,7 +55,9 @@ class main:
         self.yolon = YoloNDeploy.YoloNDeploy()
         self.networkT = CNetworkTable()
         self.ball2pos = Ball2LPos((480, 640))
-        self.monoOdo = MonocularOdometry(cam_mat = np.genfromtxt("new_mtxL.csv", delimiter=','))
+        cam_mat = np.genfromtxt("test_mtxL.csv", delimiter=',')
+        cam_mat = np.eye(3)
+        self.monoOdo = MonocularOdometry(cam_mat = cam_mat)
 
     def update(self):
         start_time = time.time()
@@ -68,7 +70,8 @@ class main:
         ball_list = self.ball_track.updateTrack(nball_list, l.shape, self.odo)
         self.display.display(l, lball)
         self.monoOdo.process_frame(l)
-        print(self.monoOdo.get_true_coordinates())
+        self.monoOdo.visual_odometery()
+        print("Pos", self.monoOdo.get_mono_coordinates())
         #print(ball_list)
         print("Elapsed Time: {}".format(time.time() - start_time))
         self.networkT.updateNetwork(self.odo, ball_list)
