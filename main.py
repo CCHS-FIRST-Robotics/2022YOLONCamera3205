@@ -11,6 +11,7 @@ from VisualPosEst import ball2coords
 from CNetworkTable import CNetworkTable
 from Ball2LPos import Ball2LPos
 from MonocularOdometry import MonocularOdometry
+from ImageSave import ImageSave
 
 # ind 0 is the width, ind 1 is the height
 CAMERA_SIZE = (1280, 720)
@@ -60,6 +61,7 @@ class main:
         cam_mat = np.genfromtxt("new_mtxL.csv", delimiter=',')
         cam_mat = np.eye(3)
         #self.monoOdo = MonocularOdometry(cam_mat = cam_mat)
+        self.save = ImageSave()
 
     def update(self):
         start_time = time.time()
@@ -73,6 +75,8 @@ class main:
         self.display.display(l, r, lball, rball)
         #self.monoOdo.process_frame(l)
         #self.monoOdo.visual_odometery()
+        if (len(lball) + len(rball) > 0):
+            self.save.save(l, r)
         for ball in ball_list:
             if (ball.state != 0):
                 print("pos", ball.pos)
