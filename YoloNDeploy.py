@@ -11,7 +11,7 @@ class YoloNDeploy:
     def __init__(self):
         self.device = select_device()
         print(self.device)
-        self.model = DetectMultiBackend("best5.pt", device=self.device, dnn=False, data="data/coco128.yaml")
+        self.model = DetectMultiBackend("ytp.pt", device=self.device, dnn=False, data="data/coco128.yaml")
         self.model.warmup(imgsz=(1, 3, 416, 416), half=False)  # warmup
 
     def img2tensor(self, l):
@@ -27,7 +27,7 @@ class YoloNDeploy:
         return l0
 
     def pred2box(self, pred, init_size):
-        pred = non_max_suppression(pred, 0.8, 0.7, max_det=40)
+        pred = non_max_suppression(pred, 0.8, 0.3, max_det=40)
         x_l = lambda x: round(((x - 416 / 2) * init_size[1] / 416) + (init_size[1] / 2))
         y_l = lambda y: round(((y - 416 / 2) * init_size[0] / 416) + (init_size[0] / 2))
         ball_list = []

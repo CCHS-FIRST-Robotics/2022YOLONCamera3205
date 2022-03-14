@@ -4,16 +4,16 @@ import numpy as np
 
 
 class CameraHandler:
-    def __init__(self, CAMERA_SIZE, CROP_BORDER_SIZE, DOWNSCALE_FACTOR, CAM_PORTS):
+    def __init__(self, CAMERA_SIZE, CROP_BORDER_SIZE, DOWNSCALE_FACTOR, CAM_PORTS, cal_set):
         self.CAMERA_SIZE = CAMERA_SIZE
         self.CROP_BORDER_SIZE = CROP_BORDER_SIZE
         self.DOWNSCALE_FACTOR = DOWNSCALE_FACTOR
-        self.initCams(CAM_PORTS)
+        self.initCams(CAM_PORTS, cal_set)
 
-    def initCams(self, CAM_PORTS):
+    def initCams(self, CAM_PORTS, cal_set):
         self.lcam = cv2.VideoCapture(CAM_PORTS[0])
         self.rcam = cv2.VideoCapture(CAM_PORTS[1])
-        self.cv_file = cv2.FileStorage("home_test.xml", cv2.FILE_STORAGE_READ)
+        self.cv_file = cv2.FileStorage(cal_set, cv2.FILE_STORAGE_READ)
         self.Left_Stereo_Map1 = self.cv_file.getNode("Left_Stereo_Map_x").mat()
         self.Left_Stereo_Map2 = self.cv_file.getNode("Left_Stereo_Map_y").mat()
         self.Right_Stereo_Map1 = self.cv_file.getNode("Right_Stereo_Map_x").mat()

@@ -25,7 +25,8 @@ class BallSim:
         xy_v_mag = (vels[0]**2 + vels[1]**2)**0.5
         xy_v = xy_vi
         if pos[2] < self.ball_r*2 and abs(vels[2]) < 0.2:
-            xy_v = xy_vi - self.dt * self.r_fric * xy_vi/xy_v_mag
+            if xy_v_mag != 0:
+                xy_v = xy_vi - self.dt * self.r_fric * xy_vi/xy_v_mag
             if xy_v_mag < self.dt * self.r_fric:
                 xy_v = np.array([0,0])
         xy = xy + (xy_v + xy_vi)*0.5
