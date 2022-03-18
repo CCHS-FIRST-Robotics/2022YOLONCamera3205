@@ -13,13 +13,15 @@ from Ball2LPos import Ball2LPos
 from MonocularOdometry import MonocularOdometry
 from ImageSave import ImageSave
 
+#10.32.5.104
+
 # ind 0 is the width, ind 1 is the height
 CAMERA_SIZE = (1280, 720)
 #CROP_BORDER_SIZE = (32, 48)
 CROP_BORDER_SIZE = (0, 0)
 DOWNSCALE_FACTOR = (1, 1)
 # ind 0 is Left, ind 2 is Right
-CAM_PORTS = (2, 1)
+CAM_PORTS = (0, 1)
 
 CAM_DIST = 0.214
 
@@ -40,7 +42,7 @@ B_COL = [95, 106, 65, 132, 255, 255]
 
 BALL_RADIUS = 0.12
 
-LOCAL_POS = [-0.127, 0.2794, 0.5]
+LOCAL_POS = [-0.1143, 0.348, 0.381]
 
 OBS_H_RANGE = [BALL_RADIUS + 0.03, 0.6]
 GRID_SIZE = 0.1
@@ -50,7 +52,7 @@ ROBOT_RAD = 0.4
 
 class main:
     def __init__(self):
-        self.cam_hand = CameraHandler(CAMERA_SIZE, CROP_BORDER_SIZE, DOWNSCALE_FACTOR, CAM_PORTS, "improved_params2.xml")
+        #self.cam_hand = CameraHandler(CAMERA_SIZE, CROP_BORDER_SIZE, DOWNSCALE_FACTOR, CAM_PORTS, "improved_params2.xml")
         #self.cam_hand = CameraHandler(CAMERA_SIZE, CROP_BORDER_SIZE, DOWNSCALE_FACTOR, CAM_PORTS, "home_test.xml")
         self.ball_track = BallTrack(R_COL, B_COL, AREA_PROP, COL_PROP, BALL_RADIUS, X_FOV, [0.3, 1.2])
         self.odo = Odometry(LOCAL_POS)
@@ -65,21 +67,26 @@ class main:
 
     def update(self):
         start_time = time.time()
-        l, r = self.cam_hand.snapshot()
-        #l = cv2.imread("image_40.jpg")
-        #r = cv2.imread("image_40.jpg")
+        #l, r = self.cam_hand.snapshot()
+        l = cv2.imread("image_l_6.jpg")
+        r = cv2.imread("image_r_6.jpg")
         self.ball2pos.img_shape = l.shape
         lball, rball = self.yolon.deploy(l, r)
         nball_list = self.ball2pos.makeBallList(lball, rball)
+        
+        print(self.odo.r_pos, self.odo.heading)
         ball_list = self.ball_track.updateTrack(nball_list, l.shape, self.odo)
-        self.display.display(l, r, lball, rball)
+        #self.display.display(l, r, lball, rball)
+        c = 0
+        print("ball_num: ", len(lball) + len(rball))
+        for ball in self.ball_track.ball_list:
+            c+=1
+            if (ball.state != 0):
+                print("pos", ball.pos, ball.color)
         #self.monoOdo.process_frame(l)
         #self.monoOdo.visual_odometery()
         if (len(lball) + len(rball) > 0):
             self.save.save(l, r)
-        for ball in ball_list:
-            if (ball.state != 0):
-                print("pos", ball.pos)
         #print("Pos", self.monoOdo.get_mono_coordinates())
         #print(ball_list)
         print("Elapsed Time: {}".format(time.time() - start_time))

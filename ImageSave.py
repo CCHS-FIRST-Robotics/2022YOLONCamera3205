@@ -10,7 +10,7 @@ class ImageSave:
 
     def save(self, l, r):
         if (time.time() - self.capture_time > 2):
-            name = str(random.randint(100, 100000))
+            name = str(random.randint(1, 100))
             cv2.imwrite("images/{}_l.jpg".format(name), l)
             cv2.imwrite("images/{}_r.jpg".format(name), r)
             self.capture_time = time.time()

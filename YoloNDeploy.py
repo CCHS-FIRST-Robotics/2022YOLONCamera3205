@@ -11,7 +11,7 @@ class YoloNDeploy:
     def __init__(self):
         self.device = select_device()
         print(self.device)
-        self.model = DetectMultiBackend("ytp.pt", device=self.device, dnn=False, data="data/coco128.yaml")
+        self.model = DetectMultiBackend("pico4.pt", device=self.device, dnn=False, data="data/coco128.yaml")
         self.model.warmup(imgsz=(1, 3, 416, 416), half=False)  # warmup
 
     def img2tensor(self, l):
