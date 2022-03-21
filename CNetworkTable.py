@@ -1,5 +1,7 @@
 from networktables import NetworkTables
 
+import numpy as np
+
 
 class CNetworkTable:
     def __init__(self):
@@ -16,17 +18,15 @@ class CNetworkTable:
             ball = ball_list[c]
 
             self.table.putNumberArray(pos_str, ball.pos)
-            self.table.putNumberArray(vel_str, ball.vel)
+            self.table.putNumberArray(vel_str, ball.pos)
             self.table.putNumberArray(g_str, [ball.state, ball.aerial, ball.color, ball.fresh])
-
-            if (ball.state != 0 and ball.color == 0):
-                print("Ball: {}".format(ball.pos))
+            NetworkTables.flush()
 
     def getOdometry(self, odo):
         x = self.state_table.getNumber("x_pos", 0)
         y = self.state_table.getNumber("y_pos", 0)
         heading = self.state_table.getNumber("heading", 0)
-        odo.setRobotPos([x, y], heading)
+        odo.setRobotPos(np.array([x, y]), heading)
 
     def updateNetwork(self, odo, ball_list):
         self.setBallTable(ball_list)

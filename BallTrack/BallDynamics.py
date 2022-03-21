@@ -25,32 +25,37 @@ class BallSim:
         xy_v_mag = (vels[0]**2 + vels[1]**2)**0.5
         xy_v = xy_vi
         if pos[2] < self.ball_r*2 and abs(vels[2]) < 0.2:
-            xy_v = xy_vi - self.dt * self.r_fric * xy_vi/xy_v_mag
+            if xy_v_mag > 0.1:
+                xy_v = xy_vi - self.dt * self.r_fric * xy_vi/xy_v_mag
             if xy_v_mag < self.dt * self.r_fric:
                 xy_v = np.array([0,0])
+        if xy_v_mag < 0.2:
+            xy_v = np.array([0,0])
         xy = xy + (xy_v + xy_vi)*0.5
 
         # left x wall
-        if (xy[0] < -1 * self.dims[0]/2):
-            xy_v[0] = xy_v[0] * -1 * self.bounce_prop
-            xy[0] = xy[0] - (xy[0] + self.dims[0]/2) * 2
+        #if (xy[0] < -1 * self.dims[0]/2):
+        #    xy_v[0] = xy_v[0] * -1 * self.bounce_prop
+        #    xy[0] = xy[0] - (xy[0] + self.dims[0]/2) * 2
         # right x wall
-        if (xy[0] > self.dims[0]/2):
-            xy_v[0] = xy_v[0] * -1 * self.bounce_prop
-            xy[0] = xy[0] - (xy[0] - self.dims[0]/2) * 2
+        #if (xy[0] > self.dims[0]/2):
+        #    xy_v[0] = xy_v[0] * -1 * self.bounce_prop
+        #    xy[0] = xy[0] - (xy[0] - self.dims[0]/2) * 2
         # Top
-        if (xy[1] < self.dims[1]/2):
-            xy_v[1] = xy_v[1] * -1 * self.bounce_prop
-            xy[1] = xy[1] - (xy[1] + self.dims[1]/2) * 2
+        #if (xy[1] < -1 * self.dims[1]/2):
+        #    xy_v[1] = xy_v[1] * -1 * self.bounce_prop
+        #    xy[1] = xy[1] - (xy[1] + self.dims[1]/2) * 2
         # Bottom
-        if (xy[1] > self.dims[1]/2):
-            xy_v[1] = xy_v[1] * -1 * self.bounce_prop
-            xy[1] = xy[1] - (xy[1] - self.dims[1]/2) * 2
+        #if (xy[1] > self.dims[1]/2):
+        #    xy_v[1] = xy_v[1] * -1 * self.bounce_prop
+        #    xy[1] = xy[1] - (xy[1] - self.dims[1]/2) * 2
 
+        #print(xy, pos, xy_v, vels,'fric')
         return xy, xy_v
+    
     def simulate(self, pos, vel):
         z, z_vel = self.vertical_comp(pos[2], vel[2])
         xy, xy_vel = self.horiz_comp(pos, vel)
-        pos_ = list(xy) + [z]
-        vel_ = list(xy_vel) + [z_vel]
+        pos_ = list(xy) + [pos[2]]
+        vel_ = list(xy_vel) + [0]
         return pos_, vel_
