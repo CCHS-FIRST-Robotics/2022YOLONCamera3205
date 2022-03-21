@@ -7,6 +7,7 @@ class Ball:
     def __init__(self, BALL_RADIUS):
         self.BALL_RADIUS = BALL_RADIUS
         self.reset()
+        self.cooldown_time = 0
 
     def reset(self):
         self.pos = [0, 0, self.BALL_RADIUS]
@@ -18,6 +19,7 @@ class Ball:
         self.fresh = 0 #0 fresh, 1 stable
         self.last_tracked = time.time()
         self.sim = BallSim(self.BALL_RADIUS)
+        self.cooldown_time = time.time()
 
     def init(self, pos, color, state = 0):
         if color == "R":

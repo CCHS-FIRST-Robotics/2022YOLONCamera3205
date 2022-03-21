@@ -50,7 +50,8 @@ class BallTrack:
         n = 0
         debug = []
         while len(options_list) > 0 and n < len(self.ball_list):
-            if self.ball_list[n].state == 0:
+            cdt = time.time() - self.ball_list[n].cooldown_time
+            if self.ball_list[n].state == 0 and cdt > 1:
                 point = nball_list[options_list[0]]
                 xyz = np.array(nball_list[options_list[0]][4:7])
                 xyz.shape = (1, 3)
