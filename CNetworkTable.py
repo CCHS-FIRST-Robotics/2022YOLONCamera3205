@@ -16,11 +16,9 @@ class CNetworkTable:
             g_str = "gstate_" + str(c)
 
             ball = ball_list[c]
-            
-            ball.sim.dt = 0.3
-            pos, vel = ball.sim.simulate(ball.pos, ball.vel)
-            self.table.putNumberArray(pos_str, pos)
-            self.table.putNumberArray(vel_str, vel)
+
+            self.table.putNumberArray(pos_str, ball.pos)
+            self.table.putNumberArray(vel_str, ball.pos)
             self.table.putNumberArray(g_str, [ball.state, ball.aerial, ball.color, ball.fresh])
             NetworkTables.flush()
 

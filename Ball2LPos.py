@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 
-BALL_RADIUS = 0.195
+BALL_RADIUS = 0.12
+CAM_DIST = 0.195
 RPP = 2 * 3.1415 * 53 / (360 * 640)
 
 class Ball2LPos:
@@ -28,7 +29,7 @@ class Ball2LPos:
         # tan(theta) = radius / dist
         distance = BALL_RADIUS / np.tan(ball_angle)
         # pixel focal lenght / distance
-        return self.cmat[0,0] / distance
+        return self.cmat[0,0] * CAM_DIST / distance
 
     def getDisparity(self, lball, rballs):
         color = lball[2]
@@ -43,15 +44,18 @@ class Ball2LPos:
                     min_rad = rad_diff + min_y_disp
                     min_index = c
         if min_index != -1:
-            return abs(lball[0] - rballs[min_index][0])
+            disp = abs(lball[0] - rballs[min_index][0])
+            rballs = rballs.pop(min_index)
+            return disp
         return 0
 
     def makeBallList(self, lballs, rballs):
         ball_list = []
         temp_img = np.zeros(self.img_shape[0:2])
+        rballs2 = rballs.copy()
         for ball in lballs:
             disp = self.radius2JankDisp(ball)
-            sdisp = self.getDisparity(ball, rballs)
+            sdisp = self.getDisparity(ball, rballs2)
             if sdisp != 0:
                 disp = disp * 0.3 + sdisp * 0.7
             if abs(sdisp - disp) < 40:

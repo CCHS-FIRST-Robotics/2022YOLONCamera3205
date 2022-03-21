@@ -56,6 +56,6 @@ class BallSim:
     def simulate(self, pos, vel):
         z, z_vel = self.vertical_comp(pos[2], vel[2])
         xy, xy_vel = self.horiz_comp(pos, vel)
-        pos_ = list(xy) + [z]
-        vel_ = list(xy_vel) + [z_vel]
+        pos_ = list(xy) + [pos[2]]
+        vel_ = list(xy_vel) + [0]
         return pos_, vel_

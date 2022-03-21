@@ -52,7 +52,7 @@ ROBOT_RAD = 0.4
 
 class main:
     def __init__(self):
-        #self.cam_hand = CameraHandler(CAMERA_SIZE, CROP_BORDER_SIZE, DOWNSCALE_FACTOR, CAM_PORTS, "improved_params2.xml")
+        self.cam_hand = CameraHandler(CAMERA_SIZE, CROP_BORDER_SIZE, DOWNSCALE_FACTOR, CAM_PORTS, "improved_params2.xml")
         #self.cam_hand = CameraHandler(CAMERA_SIZE, CROP_BORDER_SIZE, DOWNSCALE_FACTOR, CAM_PORTS, "home_test.xml")
         self.ball_track = BallTrack(R_COL, B_COL, AREA_PROP, COL_PROP, BALL_RADIUS, X_FOV, [0.3, 1.2])
         self.odo = Odometry(LOCAL_POS)
@@ -66,12 +66,15 @@ class main:
         self.save = ImageSave()
 
     def update(self):
-        start_time = time.time()
-        #l, r = self.cam_hand.snapshot()
-        l = cv2.imread("image_l_6.jpg")
-        r = cv2.imread("image_r_6.jpg")
+        st0 = time.time()
+        l, r = self.cam_hand.snapshot()
+        print("Snap Time: {}".format(time.time() - st0))
+        #l = cv2.imread("image_l_6.jpg")
+        #r = cv2.imread("image_r_6.jpg")
         self.ball2pos.img_shape = l.shape
+        start_time = time.time()
         lball, rball = self.yolon.deploy(l, r)
+        print("Elapsed Time: {}".format(time.time() - start_time))
         nball_list = self.ball2pos.makeBallList(lball, rball)
         
         print(self.odo.r_pos, self.odo.heading)
@@ -89,8 +92,9 @@ class main:
             self.save.save(l, r)
         #print("Pos", self.monoOdo.get_mono_coordinates())
         #print(ball_list)
-        print("Elapsed Time: {}".format(time.time() - start_time))
+        
         self.networkT.updateNetwork(self.odo, ball_list)
+        print("Total Time: {}".format(time.time() - st0))
         
         
 m = main()

@@ -23,7 +23,7 @@ class BallTrack:
         for ball in self.ball_list:
             if ball.state != 0:
                 a += 1
-                ball.predict(dt)
+                #ball.predict(dt)
                 min_dist = 999
                 option = -1
                 o_pt = np.array([[0, 0, 0]])
